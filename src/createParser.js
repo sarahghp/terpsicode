@@ -23,4 +23,5 @@ const parser = generate(grammar);
 
 console.log(parser.parse('all walk'));
 console.log(parser.parse('speed 3'));
-console.log(parser.parse('sustain'));
+
+exports.parser = parser;

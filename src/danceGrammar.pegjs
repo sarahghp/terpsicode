@@ -38,4 +38,4 @@ space
   = [ \n]* / !.
     
 number
-  = digits:[0-9]+ { return +(digits.join(''));  }
+  = digits:[0-9.]+ { return +(digits.join(''));  }

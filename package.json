@@ -15,6 +15,7 @@
   },
   "scripts": {
     "start": "electron .",
+    "test": "jest",
     "make-parser": "pegjs ./src/danceGrammar.pegjs",
     "test-parser": "node ./src/createParser.js"
   },
