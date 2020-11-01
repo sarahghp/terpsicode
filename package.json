@@ -1,6 +1,6 @@
 {
   "name": "terpsicode",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A livecoding language for dance and choreography.",
   "main": "main.js",
   "directories": {
@@ -9,9 +9,14 @@
   "dependencies": {
     "electron": "^7.1.10"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "jest": "^26.6.1",
+    "pegjs": "^0.10.0"
+  },
   "scripts": {
-    "start": "electron ."
+    "start": "electron .",
+    "make-parser": "pegjs ./src/danceGrammar.pegjs",
+    "test-parser": "node ./src/createParser.js"
   },
   "repository": {
     "type": "git",
@@ -21,7 +26,7 @@
     "livecode",
     "terpsicode"
   ],
-  "author": "Kate Sicchio, Z Wang",
+  "author": "Kate Sicchio, Z Wang, Sarah Groff Hennigh-Palermo, Westley Hennigh-Palermo",
   "license": "ISC",
   "bugs": {
     "url": "https://github.com/sicchio/terpsicode/issues"
