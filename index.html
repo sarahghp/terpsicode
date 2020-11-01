@@ -1,0 +1,74 @@
+<html>
+<title>Terpiscode</title>
+<head>
+
+  <script type="text/javascript" src="dance.js"></script>
+  <script src="./renderer.js"></script>
+
+  <style>
+
+    input[type=text] {
+      width: 98%;
+      border: none;
+      background-color: #242424;
+      color: #e0e0e0;
+      position:absolute;
+      bottom: 3px;
+      position:fixed;
+      font-family: courier;
+      font-size:18px;
+    }
+    body {
+      font-family: courier;
+      background-color: #292a2d;
+      font-size:12px;
+      color: #e0e0e0;
+    }
+    p {
+      padding: 0px;
+      position: relative;
+      bottom: 15px;
+    }
+    .poses {
+      top: 3px;
+      height: 100%;
+      position: sticky;
+      object-fit: contain;
+    }
+  </style>
+
+</head>
+
+<body>
+  <div id="picture" class="poses" align="center"></div>
+
+  <div>
+    <input type="text"
+           id="myText"
+           onkeydown = "if (event.keyCode==13) document.getElementById('btn').click()"></input>
+
+    <button hidden type="button"
+            id = "btn"
+            onclick="myFunction()"></button>
+
+
+    <script>
+        // Here the value is stored in new variable x
+
+        function myFunction() {
+            var x = document.getElementById("myText").value;
+            var p = document.createElement("P");
+            var t = document.createTextNode(x);
+            p.appendChild(t);
+            document.body.appendChild(p);
+            document.getElementById('myText').value='';
+            window.scrollTo(0,document.body.scrollHeight);
+
+        peg$parse(x);
+
+        }
+    </script>
+  </div>
+</body>
+
+</html>

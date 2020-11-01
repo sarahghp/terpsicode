@@ -1,0 +1,30 @@
+{
+  "name": "terpsicode",
+  "version": "1.0.0",
+  "description": "A livecoding language for dance and choreography.",
+  "main": "main.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "electron": "^7.1.10"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "start": "electron ."
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sicchio/terpsicode.git"
+  },
+  "keywords": [
+    "livecode",
+    "terpsicode"
+  ],
+  "author": "Kate Sicchio, Z Wang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/sicchio/terpsicode/issues"
+  },
+  "homepage": "https://github.com/sicchio/terpsicode#readme"
+}
