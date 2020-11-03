@@ -1,11 +1,33 @@
 start =
-  action / timing
+  action / timing / phrasing / expression
   
 action 
-  = amount:(number/'all') space move:move { return { amount, move, type: 'MOVE' } }
+  = pre:prefix? mp:move_phrase { return { ...pre,  ...mp } }
+
+prefix
+  = item:(hold / phrasing) space { return item }
+
+expression 
+  = list_expression
+  / bare_expression
+  
+list_expression
+  = expression:(bare_expression / odds_expression) space move:move_phrase+ { return { move, ...expression } }
+  
+bare_expression 
+  = expression:('random' / 'scramble') { return { expression, type: 'EXPRESSION' }}
+  
+odds_expression
+  = expression:('often' / 'sometimes' / 'coin_flip') { return { expression, type: 'EXPRESSION' }}
+  
+phrasing 
+  = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'abba' / 'rondo') { return { phrase, type: 'PHRASE' } }
+  
+hold 
+  = 'hold' space { return { time: 1 }}
 
 timing 
-  = amount:timing_phrases { return { amount, type: 'TIMING' } }
+  = time:timing_phrases { return { time, type: 'TIMING' } }
   
 timing_phrases
   = speed / staccato / sudden / sustain
@@ -21,6 +43,9 @@ sudden
 
 sustain 
   = 'sustain' { return 5 }
+
+move_phrase 
+  = space? amount:(number/'all') space move:move space? { return { amount, move, type: 'MOVE' }}
   
 move 
   = ! reserved_words move:text { return move }

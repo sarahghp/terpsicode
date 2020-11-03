@@ -21,7 +21,9 @@ console.log('hi from parser');
 /* Run parser */
 const parser = generate(grammar);
 
-console.log(parser.parse('all walk'));
-console.log(parser.parse('speed 3'));
+console.log(parser.parse('accumulation 5 lunge'));
+console.log(parser.parse('random'));
+console.log(parser.parse('often 5 roll'));
+
 
 exports.parser = parser;
