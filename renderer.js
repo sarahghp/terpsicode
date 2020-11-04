@@ -1,15 +1,29 @@
-const { readdirSync } = require('fs');
+const { existsSync, lstatSync, readdirSync } = require('fs');
 const { parser } = require('./src/createParser');
+const { chomp, startYourEngines } = require('./src/loop');
+const { getMovePath } = require('./src/utils');
+
+const isDir = (path) => {
+  return existsSync(path) && lstatSync(path).isDirectory();
+};
 
 const moveCounts = readdirSync('./tagged').map((move) => {
-  return { move, length: readdirSync(`./tagged/${move}`).length}
+  const movePath = getMovePath(move);
+  if (!isDir(movePath)) {
+    return;
+  }
+
+  return { move, size: readdirSync(movePath).length}
 });
+
+console.log(moveCounts);
 
 
 const parseInput = (command) => {
   console.log('hi');
   console.log(command);
   console.log(parser.parse(command));
+  chomp(parser.parse(command))
 }
 
 const clearValue = (input) => {
@@ -23,7 +37,7 @@ const postValue = (value) => {
   document.getElementById('commands').appendChild(para);
 }
 
-const submitMove = (parser, moveCounts, input) => ({ keyCode, target: { value } }) => {
+const submitMove = (input) => ({ keyCode, target: { value } }) => {
   if (keyCode === 13) { // enter
     parseInput(value);
     clearValue(input);
@@ -36,7 +50,8 @@ const submitMove = (parser, moveCounts, input) => ({ keyCode, target: { value } 
 
 const init = () => {
   const input = document.getElementById('input-field');
-  input.addEventListener('keydown', submitMove(parser, moveCounts, input));
+  input.addEventListener('keydown', submitMove(input));
+  startYourEngines(moveCounts);
 }
 
 document.addEventListener('DOMContentLoaded', init);

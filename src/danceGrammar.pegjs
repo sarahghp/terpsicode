@@ -48,7 +48,7 @@ move_phrase
   = space? amount:(number/'all') space move:move space? { return { amount, move, type: 'MOVE' }}
   
 move 
-  = ! reserved_words move:text { return move }
+  = ! reserved_words move:text { return move.toLowerCase() }
   
 reserved_words =
   'all' 

@@ -7,29 +7,24 @@
 */
 
 const { parser } = require('./createParser');
+const { getMovePath } = require('./utils');
 
-let frame = 0;
+const MOVE = 'MOVE';
+
+let movesDict;
+let movesList;
+let intervalId;
+let currentImage = './clear.png'
+
+let globalFrame = 0;
 let imageDisplayFns = [];
-let intervalId = 0;
 let interval = 500;
 let currentFnIndex = 0;
 
 const imageContainer = () => document.querySelector('#picture img');
 
-function * oneLunge () {
-  
-  const frame = 0;
-  let inputFrame = 1;
-  let imgStr = 'img/str/' // tagged/${move}/
-  let imgNum = inputFrame % 4;
-  
-  while(true) {
-    inputFrame = yield `${imgStr}${imgNum + 1}.jpg`;
-    imgNum = inputFrame % 4;
-  }
-}
-
 function mainLoop () {
+  ++globalFrame;
   
   if(imageDisplayFns.length < 1) {
     return;
@@ -38,17 +33,57 @@ function mainLoop () {
   if (!imageDisplayFns[currentFnIndex]) {
     currentFnIndex = 0;
   }
-  
-  // call current function with the frame number
-  const { image, roundComplete } imageDisplayFns[currentFnIndex].next(frame);
-  imageContainer.src = image;
+    
+  const { image, roundComplete } = imageDisplayFns[currentFnIndex].next(globalFrame).value;  
+  imageContainer().src = image;
   
   if (roundComplete) {
     ++currentFnIndex;
-  }
+  } 
   
 }
 
-function frameCounter () {
-  setInterval(mainLoop, interval)
+function createMove ({ move, amount }, globalFrame) {
+  const movePath = getMovePath(move);
+  const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
+  
+  const moveGen = function* (globalFrame) {
+    let frame = globalFrame;
+    let internalFrame = 0;
+    let imageNumber = 1;
+    
+    while(true) {
+      const display = {
+        image: `${movePath}${imageNumber}.jpg`,
+        roundComplete: Boolean(imageNumber == numberOfMoves),
+      }
+      console.log('displaying:', move, imageNumber);
+      frame = yield display;
+      ++internalFrame;
+      imageNumber = (internalFrame % numberOfMoves) + 1;
+    }
+  }
+  
+  const initializedFn = moveGen(globalFrame);
+  imageDisplayFns.push(initializedFn);
 }
+
+
+function chomp ({ type, ...opts }) {
+  if (type === MOVE) {
+    // currentImage = `${getMovePath(opts.move)}/1.jpg`
+    createMove(opts);
+  }
+}
+
+function startYourEngines (movesCounts) {
+  movesDict = movesCounts.reduce((acc, val) => { 
+    acc[val.move.toLowerCase()] = val;
+    return acc;
+  }, {});
+  movesList = Object.keys(movesDict);
+  intervalId = setInterval(mainLoop, interval);
+}
+
+exports.chomp = chomp;
+exports.startYourEngines = startYourEngines;
