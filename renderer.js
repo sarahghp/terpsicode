@@ -18,6 +18,7 @@ const moveCounts = readdirSync('./tagged').map((move) => {
 
 console.log(moveCounts);
 
+let previousCommands = [];
 
 const parseInput = (command) => {
   console.log(command);
@@ -25,7 +26,8 @@ const parseInput = (command) => {
   chomp(parser.parse(command))
 }
 
-const clearValue = (input) => {
+const saveAndClearValue = (input, command) => {
+  previousCommands.push(command);
   input.value = '';
 }
 
@@ -38,10 +40,14 @@ const postValue = (value) => {
 
 const submitMove = (input) => ({ keyCode, target: { value } }) => {
   if (keyCode === 13) { // enter
+    saveAndClearValue(input, value);
     parseInput(value);
-    clearValue(input);
     postValue(value);
     return;
+  }
+  
+  if (keyCode === 38) { // up key
+    input.value = previousCommands.pop();
   }
   
   return; 
