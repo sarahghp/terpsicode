@@ -9,7 +9,10 @@
 const { parser } = require('./createParser');
 const { getMovePath } = require('./utils');
 
-const MOVE = 'MOVE';
+const commandTypes = {
+   MOVE: 'MOVE',
+   TIMING:  'TIMING',
+};
 
 let movesDict;
 let intervalId;
@@ -71,11 +74,23 @@ function createMove ({ move, amount }, globalFrame) {
   imageDisplayFns.push(initializedFn);
 }
 
+function updateTiming({ time }) {
+  clearInterval(intervalId);
+  interval = time * 1000;
+  intervalId = setInterval(mainLoop, interval); 
+}
+
 
 function chomp ({ type, ...opts }) {
-  if (type === MOVE) {
-    // currentImage = `${getMovePath(opts.move)}/1.jpg`
-    createMove(opts);
+  switch (type) {
+    case commandTypes.MOVE:
+      createMove(opts);
+      break;
+    case commandTypes.TIMING:
+      updateTiming(opts);
+      break;
+    default:
+      break;
   }
 }
 
