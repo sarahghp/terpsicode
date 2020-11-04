@@ -8,9 +8,11 @@
 
 const { parser } = require('./createParser');
 const { getMovePath } = require('./utils');
+const { phrases } = require('./phrases');
 
 const commandTypes = {
    MOVE: 'MOVE',
+   PHRASE: 'PHRASE',
    TIMING:  'TIMING',
 };
 
@@ -20,23 +22,30 @@ let currentImage = './clear.png'
 
 let globalFrame = 0;
 let imageDisplayFns = [];
+let currentDisplayFns = imageDisplayFns;
 let interval = 500;
 let currentFnIndex = 0;
+let phrasingFn;
 
 const imageContainer = () => document.querySelector('#picture img');
 
 function mainLoop () {
   ++globalFrame;
-  
-  if(imageDisplayFns.length < 1) {
+    
+  if(currentDisplayFns.length < 1) {
     return;
   }
   
-  if (!imageDisplayFns[currentFnIndex]) {
+  if (!currentDisplayFns[currentFnIndex]) {
     currentFnIndex = 0;
   }
+  
+  if (phrasingFn) {
+    currentDisplayFns = phrasingFn(currentFnIndex, imageDisplayFns);
+    console.log('CDFs:', currentDisplayFns);
+  }
     
-  const { image, roundComplete } = imageDisplayFns[currentFnIndex].next(globalFrame).value;  
+  const { image, roundComplete } = currentDisplayFns[currentFnIndex].next(globalFrame).value;  
   imageContainer().src = image;
   
   if (roundComplete) {
@@ -63,6 +72,7 @@ function createMove ({ move, amount }, globalFrame) {
         image: `${movePath}${imageNumber}.jpg`,
         roundComplete: Boolean(imageNumber == numberOfMoves),
       }
+      
       console.log('displaying:', move, imageNumber);
       frame = yield display;
       ++internalFrame;
@@ -80,17 +90,24 @@ function updateTiming({ time }) {
   intervalId = setInterval(mainLoop, interval); 
 }
 
+function applyPhrasing({ phrase }) {
+  if (phrasingFn ) {
+    currentDisplayFns = imageDisplayFns;
+  }
+  phrasingFn = phrases[phrase]();
+}
+
 
 function chomp ({ type, ...opts }) {
   switch (type) {
     case commandTypes.MOVE:
-      createMove(opts);
-      break;
+      return createMove(opts);
+    case commandTypes.PHRASE:
+      return applyPhrasing(opts);
     case commandTypes.TIMING:
-      updateTiming(opts);
-      break;
+      return updateTiming(opts);
     default:
-      break;
+      return;
   }
 }
 
@@ -99,6 +116,7 @@ function startYourEngines (movesCounts) {
     acc[val.move.toLowerCase()] = val;
     return acc;
   }, {});
+  
   intervalId = setInterval(mainLoop, interval);
 }
 

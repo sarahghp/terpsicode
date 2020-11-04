@@ -20,7 +20,6 @@ console.log(moveCounts);
 
 
 const parseInput = (command) => {
-  console.log('hi');
   console.log(command);
   console.log(parser.parse(command));
   chomp(parser.parse(command))
