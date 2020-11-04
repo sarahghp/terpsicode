@@ -12,7 +12,6 @@ const { getMovePath } = require('./utils');
 const MOVE = 'MOVE';
 
 let movesDict;
-let movesList;
 let intervalId;
 let currentImage = './clear.png'
 
@@ -44,6 +43,10 @@ function mainLoop () {
 }
 
 function createMove ({ move, amount }, globalFrame) {
+  if (!movesDict[move]) {
+    return;
+  }
+  
   const movePath = getMovePath(move);
   const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
   
@@ -81,7 +84,6 @@ function startYourEngines (movesCounts) {
     acc[val.move.toLowerCase()] = val;
     return acc;
   }, {});
-  movesList = Object.keys(movesDict);
   intervalId = setInterval(mainLoop, interval);
 }
 
