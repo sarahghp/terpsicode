@@ -11,21 +11,27 @@ const { getMovePath } = require('./utils');
 const { phrases } = require('./phrases');
 
 const commandTypes = {
-   MOVE: 'MOVE',
+   MOVE:  'MOVE',
    PHRASE: 'PHRASE',
    TIMING:  'TIMING',
 };
 
+const phrasingTypes = {
+  ACCUMULATION: 'accumulation',
+  DECELERATION: 'deceleration',
+  RETROGRADE: 'retrograde',
+  RONDO: 'rondo',
+}
+
 let movesDict;
 let intervalId;
-let currentImage = './clear.png'
 
 let globalFrame = 0;
 let imageDisplayFns = [];
 let currentDisplayFns = imageDisplayFns;
 let interval = 500;
 let currentFnIndex = 0;
-let phrasingFn;
+let globalPhrasing;
 
 const imageContainer = () => document.querySelector('#picture img');
 
@@ -40,12 +46,12 @@ function mainLoop () {
     currentFnIndex = 0;
   }
   
-  if (phrasingFn) {
-    currentDisplayFns = phrasingFn(currentFnIndex, imageDisplayFns);
-    console.log('CDFs:', currentDisplayFns);
+  if (globalPhrasing && globalPhrasing.func) {
+    currentDisplayFns = globalPhrasing.func(currentFnIndex, imageDisplayFns);
+    console.log('CDFs', currentDisplayFns);
   }
     
-  const { image, roundComplete } = currentDisplayFns[currentFnIndex].next(globalFrame).value;  
+  const { image, roundComplete } = currentDisplayFns[currentFnIndex].next({ globalFrame, globalPhrasing }).value;  
   imageContainer().src = image;
   
   if (roundComplete) {
@@ -54,7 +60,7 @@ function mainLoop () {
   
 }
 
-function createMove ({ move, amount }, globalFrame) {
+function createMove ({ move, amount, phrase = 'default' }, { globalFrame, globalPhrasing } = {}) {
   if (!movesDict[move]) {
     return;
   }
@@ -62,10 +68,46 @@ function createMove ({ move, amount }, globalFrame) {
   const movePath = getMovePath(move);
   const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
   
-  const moveGen = function* (globalFrame) {
+  const updates = {
+    default: (internalFrame, numberOfMoves) => (internalFrame % numberOfMoves) + 1,
+    retrograde: (internalFrame, numberOfMoves) => numberOfMoves - (internalFrame % numberOfMoves),
+    rondo: (() => {
+      let counter = 0;
+      let lastImage = 1;
+      let display;
+      
+      return (internalFrame, numberOfMoves) => {
+      
+        
+        if (counter % 2 === 0) {
+          ++counter;
+          return 1;
+        }
+        
+        
+        let next = lastImage % numberOfMoves;
+        
+        if (next === 0) {
+          lastImage = 1
+        }
+        
+        display = lastImage + 1;
+
+        ++counter;
+        ++lastImage;
+                
+        return display;
+        
+      }
+    })(),
+    
+  }
+
+  const moveGen = function* ({ globalFrame, globalPhrasing }) {
     let frame = globalFrame;
     let internalFrame = 0;
     let imageNumber = 1;
+    let phraseState = phrase;
     
     while(true) {
       const display = {
@@ -74,15 +116,18 @@ function createMove ({ move, amount }, globalFrame) {
       }
       
       console.log('displaying:', move, imageNumber);
-      frame = yield display;
+      const { globalFrame, globalPhrasing } = yield display;
+      frame = globalFrame;
+      phraseState = globalPhrasing ? globalPhrasing.state : phraseState;
       ++internalFrame;
-      imageNumber = (internalFrame % numberOfMoves) + 1;
+      imageNumber = updates[phraseState](internalFrame, numberOfMoves);
     }
   }
   
-  const initializedFn = moveGen(globalFrame);
+  const initializedFn = moveGen({ globalFrame, globalPhrasing });
   imageDisplayFns.push(initializedFn);
 }
+
 
 function updateTiming({ time }) {
   clearInterval(intervalId);
@@ -91,10 +136,14 @@ function updateTiming({ time }) {
 }
 
 function applyPhrasing({ phrase }) {
-  if (phrasingFn ) {
+  if (globalPhrasing) {
     currentDisplayFns = imageDisplayFns;
   }
-  phrasingFn = phrases[phrase]();
+  
+  globalPhrasing = {
+    state: phrase,
+    func: phrases[phrase](),
+  }
 }
 
 
