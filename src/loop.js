@@ -32,9 +32,17 @@ function createMove ({ move, amount, phrase }) {
   if (!movesDict[move]) {
     return;
   }
+  
+  const getMovesNumber = (amount) => {
+    const totalAvailable = movesDict[move].size;
+    if (amount > totalAvailable || amount === 'all') {
+      return totalAvailable;
+    }
     
+    return amount;
+  }
   const movePath = getMovePath(move);
-  const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
+  const numberOfMoves = getMovesNumber(amount);
   const updateFns = Object.fromEntries(Object.entries(localPhrases).map(([_, val]) => [_, val()]));
 
   const moveGen = function* () {
@@ -163,6 +171,9 @@ function chomp ({ type, ...opts }) {
        return;
     case commandTypes.PHRASE:
       return applyPhrasing(opts);
+    case commandTypes.RESET:
+      currentDisplayFns = imageDisplayFns;
+      return;
     case commandTypes.TIMING:
       return updateTiming(opts);
     default:

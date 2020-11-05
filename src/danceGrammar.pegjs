@@ -5,7 +5,10 @@
 }
 
 start =
-  action / timing / phrasing / expression
+  action / timing / phrasing / expression / reset
+
+reset 
+  = 'reset' { return { type: commandTypes.RESET }}
   
 action 
   = odds:odds_expression? pre:prefix? mp:move_phrase { return { ...odds, ...pre, ...mp } }
@@ -66,7 +69,7 @@ move
   = ! reserved_words move:text { return move.toLowerCase() }
   
 reserved_words =
-  'all' 
+  'all' / 'reset'
   / 'speed' / 'sustain' / 'sudden' / 'hold' / 'staccato'
   / 'retrograde' / 'accumulation' / 'deceleration' / 'abba' / 'rondo' 
   / 'random' / 'often' / 'sometimes' / 'coin_flip' / 'every' / 'scramble'
