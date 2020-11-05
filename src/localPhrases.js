@@ -1,3 +1,11 @@
+const scrambleEm = (arr) => {
+  return arr.reduce((acc, val) => {
+    const pos = Math.floor(Math.random() * acc.length);
+    acc.splice(pos, 0, val);
+    return acc;
+  } , [])  
+};
+
 /* local abba is the same as default */
 const abba = () => (internalFrame, numberOfMoves) => (internalFrame % numberOfMoves) + 1;
 
@@ -105,3 +113,5 @@ exports.localPhrases = {
   scramble,
   default: () => (internalFrame, numberOfMoves) => (internalFrame % numberOfMoves) + 1,
 };
+
+exports.scrambleEm = scrambleEm;

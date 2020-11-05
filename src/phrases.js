@@ -1,4 +1,4 @@
-const { localPhrases } = require('./localPhrases')
+const { localPhrases, scrambleEm } = require('./localPhrases')
 
 const abba = () => { /* this is a no op here because it is preprocessed */};
 
@@ -64,13 +64,6 @@ const rondo = () => {
   }
 };
 
-const scrambleEm = (arr) => {
-  return arr.reduce((acc, val) => {
-    const pos = Math.floor(Math.random() * acc.length);
-    acc.splice(pos, 0, val);
-    return acc;
-  } , [])  
-}
 
 const scramble = () => {
   let scram;
