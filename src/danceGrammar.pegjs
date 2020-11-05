@@ -12,7 +12,7 @@ expression
   / bare_expression
   
 list_expression
-  = expression:(bare_expression / odds_expression / list_phrase) space moves:move_phrase+ { return { moves, ...expression } }
+  = odds:odds_expression? expression:(bare_expression / list_phrase) space moves:move_phrase+ { return { ...odds, moves, ...expression } }
   
 bare_expression 
   = phrase:('random' / 'scramble') { return { phrase, type: 'PHRASE' }}

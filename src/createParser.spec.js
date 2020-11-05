@@ -18,15 +18,6 @@ describe('parser expressions', () => {
         type: 'MOVE'
       });
     });
-    
-    it('parses a hold move correctly', () => {
-      expect(parser.parse('hold 1 lunge')).toMatchObject({
-        amount: 1, 
-        move: 'lunge',
-        type: 'MOVE',
-        time: 1,
-      });
-    });
   });
   
   describe('timings', () => {
@@ -90,14 +81,14 @@ describe('parser expressions', () => {
   });
   
   describe('expressions', () => {
-    describe('it works with phrase type expressions without arguments', () => {
+    it('it works with phrase type expressions without arguments', () => {
       expect(parser.parse('random')).toMatchObject({
         phrase: 'random', 
         type: 'PHRASE'
       });
     });
     
-    describe('it works with phrase type expressions with arguments', () => {
+    it('it works with phrase type expressions with arguments', () => {
       expect(parser.parse('abba 1 walk 1 lunge')).toMatchObject({
         phrase: 'abba', 
         type: 'PHRASE',
@@ -114,30 +105,44 @@ describe('parser expressions', () => {
       });
     });
     
-    describe('it works with expression type expressions with move arguments', () => {
+    it('it works with expression type expressions with move arguments', () => {
       expect(parser.parse('often 3 walk')).toMatchObject({
         expression: 'often', 
-        type: 'EXPRESSION',
-        moves: [{
-          amount: 3, 
-          move: 'walk',
-          type: 'MOVE'
-        }]
+        amount: 3, 
+        move: 'walk',
+        type: 'MOVE'
       });
     });
     
-    describe('it works with expression type expressions with move and phrase arguments', () => {
+    it('it works with expression type expressions with move and phrase arguments', () => {
       expect(parser.parse('often retrograde 3 walk')).toMatchObject({
         expression: 'often', 
-        type: 'EXPRESSION',
-        moves: [{
-          amount: 3, 
-          move: 'walk',
-          type: 'MOVE'
-        }]
+        amount: 3, 
+        move: 'walk',
+        type: 'MOVE',
+        phrase: 'retrograde',
       });
     });
     
+    it('it works with a list expression', () => {
+      expect(parser.parse('coin_flip 3 walk 2 lunge')).toMatchObject({ 
+        moves:
+         [ { amount: 3, move: 'walk', type: 'MOVE' },
+           { amount: 2, move: 'lunge', type: 'MOVE' } ],
+        phrase: 'coin_flip',
+        type: 'COIN_FLIP' 
+      });
+    });
+    
+    it('it works with a list and odds expression', () => {
+      expect(parser.parse('sometimes coin_flip 3 walk 2 lunge')).toMatchObject({ 
+        expression: 'sometimes',
+        moves:
+         [ { amount: 3, move: 'walk', type: 'MOVE' },
+           { amount: 2, move: 'lunge', type: 'MOVE' } ],
+        phrase: 'coin_flip',
+        type: 'COIN_FLIP' 
+      });
+    });
   });
-  
 });

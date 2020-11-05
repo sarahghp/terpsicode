@@ -12,7 +12,6 @@ const { globalPhrases, localPhrases } = require('./phrases');
 
 const commandTypes = {
   COIN_FLIP: 'COIN_FLIP',
-  EXPRESSION: 'EXPRESSION',
   MOVE:  'MOVE',
   PHRASE: 'PHRASE',
   TIMING:  'TIMING',
@@ -23,7 +22,12 @@ const phrasingTypes = {
   DECELERATION: 'deceleration',
   RETROGRADE: 'retrograde',
   RONDO: 'rondo',
-}
+};
+
+const expressionAdjustments = {
+  'often': () => Math.random() > .5 ? 1 : 2,
+  'sometimes': () => Math.random() > .75 ? 1 : 2,
+};
 
 let movesDict;
 let intervalId;
@@ -89,7 +93,6 @@ function* createCoinFlip({ moves }) {
   
 }
 
-
 function updateTiming({ time }) {
   clearInterval(intervalId);
   interval = time * 1000;
@@ -100,7 +103,12 @@ const preprocess = {
   abba: (moves) => {
     const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
     [ ...moves, ...reversedMoves].forEach((move) => {
-      imageDisplayFns.push(createMove(move)());
+      console.log('MOVE:', move);
+      const moveWithAdjustment = {
+        adjustment: expressionAdjustments[move.expression] || (() => 1),
+        fn: createMove(move)(),
+      }
+      imageDisplayFns.push(moveWithAdjustment);
     });
   }
 }
@@ -150,32 +158,20 @@ function mainLoop () {
   } 
 }
 
-const expressionAdjustments = {
-  'often': () => Math.random() > .5 ? 1 : 2,
-  'sometimes': () => Math.random() > .75 ? 1 : 2,
-}
-
 function chomp ({ type, ...opts }) {
   switch (type) {
     case commandTypes.COIN_FLIP:
       const coinFlip = {
         fn: createCoinFlip(opts),
-        adjustment: () => 1,
+        adjustment: expressionAdjustments[opts.expression] || (() => 1),
       }
       imageDisplayFns.push(coinFlip);
-      return;
-    case commandTypes.EXPRESSION:
-      const expression = {
-        fn: createMove(opts.moves[0])(),
-        adjustment: expressionAdjustments[opts.expression],
-      };
-      imageDisplayFns.push(expression);
       return;
     case commandTypes.MOVE:
        const moveFn = createMove(opts);
        const move = {
          fn: moveFn(),
-         adjustment: () => 1,
+         adjustment: expressionAdjustments[opts.expression] || (() => 1),
        }
        imageDisplayFns.push(move);
        return;
