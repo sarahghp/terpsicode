@@ -60,7 +60,7 @@ function mainLoop () {
   
 }
 
-function createMove ({ move, amount, phrase = 'default' }, { globalFrame, globalPhrasing } = {}) {
+function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } = {}) {
   if (!movesDict[move]) {
     return;
   }
@@ -69,6 +69,44 @@ function createMove ({ move, amount, phrase = 'default' }, { globalFrame, global
   const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
   
   const updates = {
+    accumulation: (() => {
+      let movesThisRound = 1;
+      let movesSoFar = 0;
+      
+      return (internalFrame, numberOfMoves) => {
+                        
+        if (movesSoFar === movesThisRound) {
+          movesThisRound = (movesThisRound % numberOfMoves) + 1;
+          movesSoFar = 0;
+        }
+        
+        return ++movesSoFar;
+        
+      }
+    })(),
+    deceleration: (() => {
+      let movesThisRound;
+      let movesSoFar = 0;
+      let round = 1;
+      
+      return (internalFrame, numberOfMoves) => {
+        
+        movesThisRound = movesThisRound || numberOfMoves;
+                                
+        if (movesSoFar === movesThisRound) {
+           --movesThisRound;
+          
+          if (movesThisRound <= 0) {
+            movesThisRound = numberOfMoves;
+          }
+          
+          movesSoFar = 0;
+        }
+        
+        return ++movesSoFar;
+        
+      }
+    })(),
     default: (internalFrame, numberOfMoves) => (internalFrame % numberOfMoves) + 1,
     retrograde: (internalFrame, numberOfMoves) => numberOfMoves - (internalFrame % numberOfMoves),
     rondo: (() => {
@@ -78,7 +116,6 @@ function createMove ({ move, amount, phrase = 'default' }, { globalFrame, global
       
       return (internalFrame, numberOfMoves) => {
       
-        
         if (counter % 2 === 0) {
           ++counter;
           return 1;
@@ -100,14 +137,14 @@ function createMove ({ move, amount, phrase = 'default' }, { globalFrame, global
         
       }
     })(),
-    
   }
 
   const moveGen = function* ({ globalFrame, globalPhrasing }) {
     let frame = globalFrame;
     let internalFrame = 0;
     let imageNumber = 1;
-    let phraseState = phrase;
+    let phraseState;
+    let currentPhrase = () => phrase || phraseState || 'default';
     
     while(true) {
       const display = {
@@ -118,9 +155,9 @@ function createMove ({ move, amount, phrase = 'default' }, { globalFrame, global
       console.log('displaying:', move, imageNumber);
       const { globalFrame, globalPhrasing } = yield display;
       frame = globalFrame;
-      phraseState = globalPhrasing ? globalPhrasing.state : phraseState;
+      phraseState = globalPhrasing && globalPhrasing.state;
       ++internalFrame;
-      imageNumber = updates[phraseState](internalFrame, numberOfMoves);
+      imageNumber = updates[currentPhrase()](internalFrame, numberOfMoves);
     }
   }
   

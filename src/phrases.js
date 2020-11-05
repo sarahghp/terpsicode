@@ -1,3 +1,4 @@
+const abba = () => {/* this is a no-op at the global level*/}
 const accumulation = () => {
   let round = 0;
   let display;
