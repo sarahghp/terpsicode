@@ -49,6 +49,7 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
     let internalFrame = 0;
     let imageNumber = phrase === 'retrograde' ? numberOfMoves : 1;
     let phraseState;
+    
     const currentPhrase = () => phrase || phraseState || 'default';
     const roundComplete = () => currentPhrase === 'retrograde' ? Boolean(imageNumber == 1) : Boolean(imageNumber == numberOfMoves)
     
