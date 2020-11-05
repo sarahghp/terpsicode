@@ -97,7 +97,7 @@ describe('parser expressions', () => {
       });
     });
     
-    describe('it works with a list expression of phrase type', () => {
+    describe('it works with phrase type expressions with arguments', () => {
       expect(parser.parse('abba 1 walk 1 lunge')).toMatchObject({
         phrase: 'abba', 
         type: 'PHRASE',
@@ -109,6 +109,30 @@ describe('parser expressions', () => {
         {
           amount: 1, 
           move: 'lunge',
+          type: 'MOVE'
+        }]
+      });
+    });
+    
+    describe('it works with expression type expressions with move arguments', () => {
+      expect(parser.parse('often 3 walk')).toMatchObject({
+        expression: 'often', 
+        type: 'EXPRESSION',
+        moves: [{
+          amount: 3, 
+          move: 'walk',
+          type: 'MOVE'
+        }]
+      });
+    });
+    
+    describe('it works with expression type expressions with move and phrase arguments', () => {
+      expect(parser.parse('often retrograde 3 walk')).toMatchObject({
+        expression: 'often', 
+        type: 'EXPRESSION',
+        moves: [{
+          amount: 3, 
+          move: 'walk',
           type: 'MOVE'
         }]
       });

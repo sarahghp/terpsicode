@@ -12,6 +12,7 @@ const { globalPhrases, localPhrases } = require('./phrases');
 
 const commandTypes = {
   COIN_FLIP: 'COIN_FLIP',
+  EXPRESSION: 'EXPRESSION',
   MOVE:  'MOVE',
   PHRASE: 'PHRASE',
   TIMING:  'TIMING',
@@ -99,7 +100,7 @@ const preprocess = {
   abba: (moves) => {
     const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
     [ ...moves, ...reversedMoves].forEach((move) => {
-      createMove(move)
+      imageDisplayFns.push(createMove(move)());
     });
   }
 }
@@ -132,27 +133,51 @@ function mainLoop () {
   
   if (globalPhrasing && globalPhrasing.func) {
     currentDisplayFns = globalPhrasing.func(currentFnIndex, imageDisplayFns);
-    // console.log('CDFs', currentDisplayFns);
   }
+  
+  // console.log('CDFs', currentDisplayFns);
+
     
-  const { image, roundComplete } = currentDisplayFns[currentFnIndex]
+  const { image, roundComplete } = currentDisplayFns[currentFnIndex].fn
     .next({ globalFrame, globalPhrasing }).value;  
     
   imageContainer().src = image;
   
   if (roundComplete) {
-    ++currentFnIndex;
+    const lookahead = currentDisplayFns[currentFnIndex + 1] ? currentFnIndex + 1 : 0;
+    const increment = currentDisplayFns[lookahead].adjustment();
+    currentFnIndex = (currentFnIndex + increment) % currentDisplayFns.length;
   } 
+}
+
+const expressionAdjustments = {
+  'often': () => Math.random() > .5 ? 1 : 2,
+  'sometimes': () => Math.random() > .75 ? 1 : 2,
 }
 
 function chomp ({ type, ...opts }) {
   switch (type) {
     case commandTypes.COIN_FLIP:
-      imageDisplayFns.push(createCoinFlip(opts));
+      const coinFlip = {
+        fn: createCoinFlip(opts),
+        adjustment: () => 1,
+      }
+      imageDisplayFns.push(coinFlip);
+      return;
+    case commandTypes.EXPRESSION:
+      const expression = {
+        fn: createMove(opts.moves[0])(),
+        adjustment: expressionAdjustments[opts.expression],
+      };
+      imageDisplayFns.push(expression);
       return;
     case commandTypes.MOVE:
-       const move = createMove(opts);
-       imageDisplayFns.push(move({ globalFrame, globalPhrasing }));
+       const moveFn = createMove(opts);
+       const move = {
+         fn: moveFn(),
+         adjustment: () => 1,
+       }
+       imageDisplayFns.push(move);
        return;
     case commandTypes.PHRASE:
       return applyPhrasing(opts);

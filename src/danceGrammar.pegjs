@@ -2,7 +2,7 @@ start =
   action / timing / phrasing / expression
   
 action 
-  = pre:prefix? mp:move_phrase { return { ...pre,  ...mp } }
+  = odds:odds_expression? pre:prefix? mp:move_phrase { return { ...odds, ...pre, ...mp } }
 
 prefix
   = item:(hold / phrasing / bare_expression) space { return item }
@@ -18,7 +18,7 @@ bare_expression
   = phrase:('random' / 'scramble') { return { phrase, type: 'PHRASE' }}
   
 odds_expression
-  = expression:('often' / 'sometimes') { return { expression, type: 'EXPRESSION' }}
+  = expression:('often' / 'sometimes') space { return { expression, type: 'EXPRESSION' }}
   
 phrasing 
   = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'rondo') { return { phrase, type: 'PHRASE' } }
