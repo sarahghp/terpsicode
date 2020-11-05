@@ -11,9 +11,10 @@ const { getMovePath } = require('./utils');
 const { globalPhrases, localPhrases } = require('./phrases');
 
 const commandTypes = {
-   MOVE:  'MOVE',
-   PHRASE: 'PHRASE',
-   TIMING:  'TIMING',
+  COIN_FLIP: 'COIN_FLIP',
+  MOVE:  'MOVE',
+  PHRASE: 'PHRASE',
+  TIMING:  'TIMING',
 };
 
 const phrasingTypes = {
@@ -35,7 +36,7 @@ let globalPhrasing;
 
 const imageContainer = () => document.querySelector('#picture img');
 
-function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } = {}) {
+function createMove ({ move, amount, phrase }) {
   if (!movesDict[move]) {
     return;
   }
@@ -44,7 +45,7 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
   const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
   const updateFns = Object.fromEntries(Object.entries(localPhrases).map(([_, val]) => [_, val()]));
 
-  const moveGen = function* ({ globalFrame, globalPhrasing }) {
+  const moveGen = function* () {
     let frame = globalFrame;
     let internalFrame = 0;
     let imageNumber = phrase === 'retrograde' ? numberOfMoves : 1;
@@ -54,7 +55,7 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
     const roundComplete = () => currentPhrase === 'retrograde' ? Boolean(imageNumber == 1) : Boolean(imageNumber == numberOfMoves)
     
     while(true) {
-      const display = {
+      let display = {
         image: `${movePath}${imageNumber}.jpg`,
         roundComplete: roundComplete(),
       }
@@ -68,8 +69,23 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
     }
   }
   
-  const initializedFn = moveGen({ globalFrame, globalPhrasing });
-  imageDisplayFns.push(initializedFn);
+  return moveGen;
+}
+
+function* createCoinFlip({ moves }) {
+  const moveOne = createMove(moves[0])();
+  const moveTwo = createMove(moves[1])();
+
+  
+  while(true) {
+    let args = {
+      globalFrame: 0, globalPhrasing: 1
+    }
+    
+    let currentFn = Math.random() > .5 ? moveOne : moveTwo;
+    args = yield currentFn.next(args).value;
+  }
+  
 }
 
 
@@ -121,6 +137,7 @@ function mainLoop () {
     
   const { image, roundComplete } = currentDisplayFns[currentFnIndex]
     .next({ globalFrame, globalPhrasing }).value;  
+    
   imageContainer().src = image;
   
   if (roundComplete) {
@@ -130,8 +147,13 @@ function mainLoop () {
 
 function chomp ({ type, ...opts }) {
   switch (type) {
+    case commandTypes.COIN_FLIP:
+      imageDisplayFns.push(createCoinFlip(opts));
+      return;
     case commandTypes.MOVE:
-      return createMove(opts);
+       const move = createMove(opts);
+       imageDisplayFns.push(move({ globalFrame, globalPhrasing }));
+       return;
     case commandTypes.PHRASE:
       return applyPhrasing(opts);
     case commandTypes.TIMING:
