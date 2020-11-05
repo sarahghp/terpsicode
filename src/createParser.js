@@ -19,7 +19,7 @@ const parser = generate(grammar);
 
 console.log(parser.parse('accumulation 5 lunge'));
 console.log(parser.parse('random'));
-console.log(parser.parse('often 5 roll'));
+console.log(parser.parse('abba 1 walk 1 lunge'));
 
 
 exports.parser = parser;

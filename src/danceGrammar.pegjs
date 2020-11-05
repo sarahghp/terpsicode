@@ -12,7 +12,7 @@ expression
   / bare_expression
   
 list_expression
-  = expression:(bare_expression / odds_expression) space move:move_phrase+ { return { move, ...expression } }
+  = expression:(bare_expression / odds_expression / abba) space moves:move_phrase+ { return { moves, ...expression } }
   
 bare_expression 
   = expression:('random' / 'scramble') { return { expression, type: 'EXPRESSION' }}
@@ -21,7 +21,10 @@ odds_expression
   = expression:('often' / 'sometimes' / 'coin_flip') { return { expression, type: 'EXPRESSION' }}
   
 phrasing 
-  = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'abba' / 'rondo') { return { phrase, type: 'PHRASE' } }
+  = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'rondo') { return { phrase, type: 'PHRASE' } }
+
+abba 
+ = phrase:'abba' { return { phrase, type: 'PHRASE' } }
   
 hold 
   = 'hold' space { return { time: 1 }}

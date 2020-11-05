@@ -97,6 +97,23 @@ describe('parser expressions', () => {
       });
     });
     
+    describe('it works with a list expression of phrase type', () => {
+      expect(parser.parse('abba 1 walk 1 lunge')).toMatchObject({
+        phrase: 'abba', 
+        type: 'PHRASE',
+        moves: [{
+          amount: 1, 
+          move: 'walk',
+          type: 'MOVE'
+        },
+        {
+          amount: 1, 
+          move: 'lunge',
+          type: 'MOVE'
+        }]
+      });
+    });
+    
   });
   
 });
