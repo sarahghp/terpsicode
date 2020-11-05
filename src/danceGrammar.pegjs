@@ -1,3 +1,9 @@
+{
+  
+  const { commandTypes } = require('../../../../src/constants')
+
+}
+
 start =
   action / timing / phrasing / expression
   
@@ -15,28 +21,28 @@ list_expression
   = odds:odds_expression? expression:(bare_expression / list_phrase) space moves:move_phrase+ { return { ...odds, moves, ...expression } }
   
 bare_expression 
-  = phrase:('random' / 'scramble') { return { phrase, type: 'PHRASE' }}
+  = phrase:('random' / 'scramble') { return { phrase, type: commandTypes.PHRASE }}
   
 odds_expression
-  = expression:('often' / 'sometimes') space { return { expression, type: 'EXPRESSION' }}
+  = expression:('often' / 'sometimes') space { return { expression, type: commandTypes.EXPRESSION }}
   
 phrasing 
-  = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'rondo') { return { phrase, type: 'PHRASE' } }
+  = phrase:('retrograde' / 'accumulation' / 'deceleration' / 'rondo') { return { phrase, type: commandTypes.PHRASE } }
 
 list_phrase 
  = abba / coin_flip
 
 abba 
- = phrase:('abba') { return { phrase, type: 'PHRASE' } }
+ = phrase:('abba') { return { phrase, type: commandTypes.PHRASE } }
  
 coin_flip 
-  = phrase:('coin_flip') { return { phrase, type: 'COIN_FLIP' } }
+  = phrase:('coin_flip') { return { phrase, type: commandTypes.COIN_FLIP } }
    
 hold 
   = 'hold' space { return { time: 1 }}
 
 timing 
-  = time:timing_phrases { return { time, type: 'TIMING' } }
+  = time:timing_phrases { return { time, type: commandTypes.TIMING } }
   
 timing_phrases
   = speed / staccato / sudden / sustain
@@ -54,7 +60,7 @@ sustain
   = 'sustain' { return 5 }
 
 move_phrase 
-  = space? amount:(number/'all') space move:move space? { return { amount, move, type: 'MOVE' }}
+  = space? amount:(number/'all') space move:move space? { return { amount, move, type: commandTypes.MOVE }}
   
 move 
   = ! reserved_words move:text { return move.toLowerCase() }

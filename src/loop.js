@@ -9,20 +9,7 @@
 const { parser } = require('./createParser');
 const { getMovePath } = require('./utils');
 const { globalPhrases, localPhrases } = require('./phrases');
-
-const commandTypes = {
-  COIN_FLIP: 'COIN_FLIP',
-  MOVE:  'MOVE',
-  PHRASE: 'PHRASE',
-  TIMING:  'TIMING',
-};
-
-const phrasingTypes = {
-  ACCUMULATION: 'accumulation',
-  DECELERATION: 'deceleration',
-  RETROGRADE: 'retrograde',
-  RONDO: 'rondo',
-};
+const { commandTypes, phrasingTypes } = require('./constants')
 
 const expressionAdjustments = {
   'often': () => Math.random() > .5 ? 1 : 2,
@@ -103,7 +90,6 @@ const preprocess = {
   abba: (moves) => {
     const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
     [ ...moves, ...reversedMoves].forEach((move) => {
-      console.log('MOVE:', move);
       const moveWithAdjustment = {
         adjustment: expressionAdjustments[move.expression] || (() => 1),
         fn: createMove(move)(),

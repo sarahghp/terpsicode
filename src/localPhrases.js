@@ -93,9 +93,7 @@ const scramble = () => {
       counter = 0;
       scram = scrambleEm(Array(numberOfMoves).fill().map((_, idx) => idx + 1));
     }
-    
-    // console.log('***', scram, counter, numberOfMoves);
-    
+        
     current = scram[counter];
     ++counter;
     
