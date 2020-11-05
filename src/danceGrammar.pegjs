@@ -5,7 +5,7 @@ action
   = pre:prefix? mp:move_phrase { return { ...pre,  ...mp } }
 
 prefix
-  = item:(hold / phrasing) space { return item }
+  = item:(hold / phrasing / bare_expression) space { return item }
 
 expression 
   = list_expression
@@ -15,7 +15,7 @@ list_expression
   = expression:(bare_expression / odds_expression / abba) space moves:move_phrase+ { return { moves, ...expression } }
   
 bare_expression 
-  = expression:('random' / 'scramble') { return { expression, type: 'EXPRESSION' }}
+  = phrase:('random' / 'scramble') { return { phrase, type: 'PHRASE' }}
   
 odds_expression
   = expression:('often' / 'sometimes' / 'coin_flip') { return { expression, type: 'EXPRESSION' }}

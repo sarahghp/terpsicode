@@ -90,10 +90,10 @@ describe('parser expressions', () => {
   });
   
   describe('expressions', () => {
-    describe('it works with expressions without arguments', () => {
+    describe('it works with phrase type expressions without arguments', () => {
       expect(parser.parse('random')).toMatchObject({
-        expression: 'random', 
-        type: 'EXPRESSION'
+        phrase: 'random', 
+        type: 'PHRASE'
       });
     });
     

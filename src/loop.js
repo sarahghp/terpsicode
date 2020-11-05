@@ -42,6 +42,7 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
     
   const movePath = getMovePath(move);
   const numberOfMoves = amount === 'all' ? movesDict[move].size : amount;
+  const updateFns = Object.fromEntries(Object.entries(localPhrases).map(([_, val]) => [_, val()]));
 
   const moveGen = function* ({ globalFrame, globalPhrasing }) {
     let frame = globalFrame;
@@ -62,7 +63,7 @@ function createMove ({ move, amount, phrase }, { globalFrame, globalPhrasing } =
       frame = globalFrame;
       phraseState = globalPhrasing && globalPhrasing.state;
       ++internalFrame;
-      imageNumber = localPhrases[currentPhrase()](internalFrame, numberOfMoves);
+      imageNumber = updateFns[currentPhrase()](internalFrame, numberOfMoves);
     }
   }
   
@@ -94,7 +95,7 @@ function applyPhrasing({ phrase, moves }) {
   if (preprocess[phrase]) {
     preprocess[phrase](moves)
   }
-  
+    
   globalPhrasing = {
     state: phrase,
     func: globalPhrases[phrase](),
@@ -114,10 +115,11 @@ function mainLoop () {
   
   if (globalPhrasing && globalPhrasing.func) {
     currentDisplayFns = globalPhrasing.func(currentFnIndex, imageDisplayFns);
-    console.log('CDFs', currentDisplayFns);
+    // console.log('CDFs', currentDisplayFns);
   }
     
-  const { image, roundComplete } = currentDisplayFns[currentFnIndex].next({ globalFrame, globalPhrasing }).value;  
+  const { image, roundComplete } = currentDisplayFns[currentFnIndex]
+    .next({ globalFrame, globalPhrasing }).value;  
   imageContainer().src = image;
   
   if (roundComplete) {
