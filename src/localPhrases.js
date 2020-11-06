@@ -51,7 +51,15 @@ const deceleration = () => {
 
 const random = () => (internalFrame, numberOfMoves) => Math.ceil(Math.random() * numberOfMoves);
 
-const retrograde = () => (internalFrame, numberOfMoves) => numberOfMoves - (internalFrame % numberOfMoves);
+const retrograde = () => {
+  let counter = 1;
+  let display;
+  return (internalFrame, numberOfMoves) => {
+    display = numberOfMoves - (counter % numberOfMoves)
+    ++counter;
+    return display;
+  };
+}
 
 const rondo = () => {
   let counter = 0;
