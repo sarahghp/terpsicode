@@ -82,7 +82,7 @@ To run the app:
 
 ---
 
-Want to learn more about how the language is architected? See [the architecture docs]('./docs/architecture.md')
+Want to learn more about how the language is architected? See [the architecture docs](./docs/architecture.md)
 
 
 Want to make a live coding language? Look here
