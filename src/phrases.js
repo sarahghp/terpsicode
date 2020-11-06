@@ -1,7 +1,5 @@
 const { localPhrases, scrambleEm } = require('./localPhrases')
 
-const abba = () => { /* this is a no op here because it is preprocessed */};
-
 const accumulation = () => {
   let round = 0;
   let display;
@@ -78,10 +76,7 @@ const scramble = () => {
   }
 }
 
-
-
 exports.globalPhrases = {
-  abba,
   accumulation,
   deceleration,
   retrograde,

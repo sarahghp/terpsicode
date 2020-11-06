@@ -6,9 +6,6 @@ const scrambleEm = (arr) => {
   } , [])  
 };
 
-/* local abba is the same as default */
-const abba = () => (internalFrame, numberOfMoves) => (internalFrame % numberOfMoves) + 1;
-
 const accumulation = () => {
   let movesThisRound = 1;
   let movesSoFar = 0;
@@ -110,7 +107,6 @@ const scramble = () => {
 };
 
 exports.localPhrases = {
-  abba,
   accumulation,
   deceleration,
   retrograde,

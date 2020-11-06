@@ -1,5 +1,4 @@
 const commandTypes = {
-  COIN_FLIP: 'COIN_FLIP',
   MOVE:  'MOVE',
   PHRASE: 'PHRASE',
   RESET: 'RESET',

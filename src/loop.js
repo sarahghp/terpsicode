@@ -171,7 +171,6 @@ function chomp ({ type, ...opts }) {
       return;
     case commandTypes.SPECIAL:
       const actions = specialFunctions[opts.name](opts);
-      console.log(actions);
       imageDisplayFns.push(...actions);
       return;
     case commandTypes.TIMING:
