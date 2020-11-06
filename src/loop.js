@@ -14,7 +14,7 @@ let intervalId;
 let globalFrame = 0;
 let imageDisplayFns = [];
 let currentDisplayFns = imageDisplayFns;
-let interval = 500;
+let interval = 2500;
 let currentFnIndex = 0;
 let globalPhrasing;
 
@@ -156,10 +156,6 @@ function mainLoop () {
 
 function chomp ({ type, ...opts }) {
   switch (type) {
-    // case commandTypes.COIN_FLIP:
-    //   const coinFlip = 
-    //   imageDisplayFns.push(coinFlip);
-    //   return;
     case commandTypes.MOVE:
        const moveFn = createMove(opts);
        const move = {

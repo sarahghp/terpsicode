@@ -19,7 +19,7 @@ Typing a `move` into the input and hitting <kbd>enter</kbd> adds the `move` to t
 
 ### Timing
 
-Each image in a cycle shows by default for 1s. This timing can be changed using the `speed` command:
+Each image in a cycle shows by default for 2.5s. This timing can be changed using the `speed` command:
 
 ```
 speed 3
