@@ -16,9 +16,8 @@ const moveCounts = readdirSync('./tagged').map((move) => {
   return { move, size: readdirSync(movePath).length}
 });
 
-console.log(moveCounts);
-
 let previousCommands = [];
+let readCommands;
 
 const parseInput = (command) => {
   console.log(command);
@@ -26,9 +25,32 @@ const parseInput = (command) => {
   chomp(parser.parse(command))
 }
 
+const readCommandsInit = () => {
+  
+  const storedCommands = JSON.parse(localStorage.getItem('previousCommands'));
+  
+  if (previousCommands.length === 0 && !storedCommands) {
+    return '';
+  }
+  
+  if (previousCommands.length === 0) {
+    previousCommands = storedCommands;
+  }
+  
+  let counter = previousCommands.length;
+  
+  return (direction) => {
+    counter = counter + direction;
+    const command = previousCommands[counter];
+    return command || '';
+  }
+}
+
 const saveAndClearValue = (input, command) => {
+  const { localStorage } = window;  
   previousCommands.push(command);
   input.value = '';
+  localStorage.setItem('previousCommands', JSON.stringify(previousCommands));
 }
 
 const postValue = (value) => {
@@ -40,16 +62,21 @@ const postValue = (value) => {
 
 const submitMove = (input) => ({ keyCode, target: { value } }) => {
   if (keyCode === 13) { // enter
+    readCommands = readCommandsInit(); // reset the command reader
     saveAndClearValue(input, value);
     parseInput(value);
     postValue(value);
     return;
   }
   
-  if (keyCode === 38) { // up key
-    input.value = previousCommands.pop();
+  if (keyCode === 38) { // up arrow
+    input.value = readCommands(-1);
   }
   
+  if (keyCode === 40) { // down arrow
+    input.value = readCommands(1);
+  }
+
   return; 
 }
 
@@ -57,6 +84,7 @@ const init = () => {
   const input = document.getElementById('input-field');
   input.addEventListener('keydown', submitMove(input));
   startYourEngines(moveCounts);
+  readCommands = readCommandsInit();
 }
 
 document.addEventListener('DOMContentLoaded', init);
