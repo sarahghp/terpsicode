@@ -20,10 +20,13 @@ let previousCommands = [];
 let readCommands;
 
 const parseInput = (command) => {
-  console.log(command);
-  console.log(parser.parse(command));
-  chomp(parser.parse(command))
-}
+  try {
+    console.log(command);
+    chomp(parser.parse(command));
+  } catch {
+    console.error(`The parser did not understand the command:`, command)
+  }
+};
 
 const readCommandsInit = () => {
   
@@ -43,22 +46,22 @@ const readCommandsInit = () => {
     counter = counter + direction;
     const command = previousCommands[counter];
     return command || '';
-  }
-}
+  };
+};
 
 const saveAndClearValue = (input, command) => {
   const { localStorage } = window;  
   previousCommands.push(command);
   input.value = '';
   localStorage.setItem('previousCommands', JSON.stringify(previousCommands));
-}
+};
 
 const postValue = (value) => {
   const para = document.createElement('p');
   const text = document.createTextNode(value);
   para.appendChild(text);
   document.getElementById('commands').appendChild(para);
-}
+};
 
 const submitMove = (input) => ({ keyCode, target: { value } }) => {
   if (keyCode === 13) { // enter
@@ -67,7 +70,7 @@ const submitMove = (input) => ({ keyCode, target: { value } }) => {
     parseInput(value);
     postValue(value);
     return;
-  }
+  };
   
   if (keyCode === 38) { // up arrow
     input.value = readCommands(-1);
@@ -78,13 +81,13 @@ const submitMove = (input) => ({ keyCode, target: { value } }) => {
   }
 
   return; 
-}
+};
 
 const init = () => {
   const input = document.getElementById('input-field');
   input.addEventListener('keydown', submitMove(input));
   startYourEngines(moveCounts);
   readCommands = readCommandsInit();
-}
+};
 
 document.addEventListener('DOMContentLoaded', init);

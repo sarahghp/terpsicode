@@ -9,6 +9,12 @@ The core of the language is the `move`, which comprises a number and a move name
 5 jump
 ```
 
+The move name can be any folder name within the `tagged` directory. If the number of moves given exceeds the total possible number of moves, the maximum moves will be returned. The maximum moves can also be called for with the `all` modifier.
+
+```
+all jump
+```
+
 Typing a `move` into the input and hitting <kbd>enter</kbd> adds the `move` to the end of the current cycle. Using the <kbd>↑</kbd> and <kbd>↓</kbd> keys cycles through previous commands. 
 
 ### Timing
@@ -73,7 +79,7 @@ often retrograde 5 jump
 
 Global-only commands can only be run on the list of `move`s as a whole. Only timings are global-only.
 
-### Running the App
+## Running the App
 
 To run the app:   
 1. Download the code in this repo as a bundle or fork the repo and use your local version.

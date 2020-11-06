@@ -1,20 +1,12 @@
-/*
-
-  1. Parse
-  2. Take result and generate function
-  3. Iterate through functions and show images
-
-*/
-
 const { parser } = require('./createParser');
 const { getMovePath } = require('./utils');
 const { globalPhrases, localPhrases } = require('./phrases');
 const { commandTypes, phrasingTypes } = require('./constants')
 
-const expressionAdjustments = {
-  'often': () => Math.random() > .5 ? 1 : 2,
-  'sometimes': () => Math.random() > .75 ? 1 : 2,
-};
+const expressionAdjustments = (numToSkip) => ({
+  'often': () => Math.random() > .5 ? 1 : numToSkip,
+  'sometimes': () => Math.random() > .75 ? 1 : numToSkip,
+});
 
 let movesDict;
 let intervalId;
@@ -75,17 +67,20 @@ function createMove ({ move, amount, phrase }) {
 function* createCoinFlip({ moves }) {
   const moveOne = createMove(moves[0])();
   const moveTwo = createMove(moves[1])();
-
+  let currentFn;
+  let called;
+  const getNewFunction = () => Math.random() > .5 ? moveOne : moveTwo;
   
   while(true) {
     let args = {
       globalFrame: 0, globalPhrasing: 1
     }
     
-    let currentFn = Math.random() > .5 ? moveOne : moveTwo;
-    args = yield currentFn.next(args).value;
+    currentFn = currentFn || getNewFunction();
+    called = currentFn.next(args).value;
+    args = yield called;
+    currentFn = called.roundComplete ? getNewFunction() : currentFn;
   }
-  
 }
 
 function updateTiming({ time }) {
@@ -95,11 +90,12 @@ function updateTiming({ time }) {
 }
 
 const preprocess = {
-  abba: (moves) => {
+  abba: (moves, expression) => {    
     const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
-    [ ...moves, ...reversedMoves].forEach((move) => {
+    [ ...moves, ...reversedMoves].forEach((move, idx) => {
       const moveWithAdjustment = {
-        adjustment: expressionAdjustments[move.expression] || (() => 1),
+        /* For abba all four must be skipped */
+        adjustment: (idx === 0 && expression )? expressionAdjustments(5)[expression] : (() => 1),
         fn: createMove(move)(),
       }
       imageDisplayFns.push(moveWithAdjustment);
@@ -107,13 +103,13 @@ const preprocess = {
   }
 }
 
-function applyPhrasing({ phrase, moves }) {
+function applyPhrasing({ phrase, moves, ...opts }) {
   if (globalPhrasing) {
     currentDisplayFns = imageDisplayFns;
   }
   
   if (preprocess[phrase]) {
-    preprocess[phrase](moves)
+    preprocess[phrase](moves, opts.expression)
   }
     
   globalPhrasing = {
@@ -123,28 +119,29 @@ function applyPhrasing({ phrase, moves }) {
 }
 
 function mainLoop () {
-  ++globalFrame;
-    
+  /* If there are no moves, no need to run the function. */
   if(currentDisplayFns.length < 1) {
     return;
   }
   
-  if (!currentDisplayFns[currentFnIndex]) {
-    currentFnIndex = 0;
-  }
-  
+  /* Otherwise, update frame for next run. */
+  ++globalFrame;
+      
+  /* Apply phasing calls if they exist */
   if (globalPhrasing && globalPhrasing.func) {
     currentDisplayFns = globalPhrasing.func(currentFnIndex, imageDisplayFns);
   }
   
-  // console.log('CDFs', currentDisplayFns);
-
-    
+  /* Now get the next image and display it */
   const { image, roundComplete } = currentDisplayFns[currentFnIndex].fn
     .next({ globalFrame, globalPhrasing }).value;  
     
   imageContainer().src = image;
   
+  /* 
+    If the move has finished its internal cycle, move on to the next move,
+    skipping any necessary by calling their adjustment function. 
+  */
   if (roundComplete) {
     const lookahead = currentDisplayFns[currentFnIndex + 1] ? currentFnIndex + 1 : 0;
     const increment = currentDisplayFns[lookahead].adjustment();
@@ -157,7 +154,7 @@ function chomp ({ type, ...opts }) {
     case commandTypes.COIN_FLIP:
       const coinFlip = {
         fn: createCoinFlip(opts),
-        adjustment: expressionAdjustments[opts.expression] || (() => 1),
+        adjustment: expressionAdjustments(2)[opts.expression] || (() => 1),
       }
       imageDisplayFns.push(coinFlip);
       return;
@@ -165,7 +162,7 @@ function chomp ({ type, ...opts }) {
        const moveFn = createMove(opts);
        const move = {
          fn: moveFn(),
-         adjustment: expressionAdjustments[opts.expression] || (() => 1),
+         adjustment: expressionAdjustments(2)[opts.expression] || (() => 1),
        }
        imageDisplayFns.push(move);
        return;
