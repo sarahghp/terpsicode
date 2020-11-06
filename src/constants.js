@@ -3,6 +3,7 @@ const commandTypes = {
   MOVE:  'MOVE',
   PHRASE: 'PHRASE',
   RESET: 'RESET',
+  SPECIAL: 'SPECIAL',
   TIMING:  'TIMING',
 };
 

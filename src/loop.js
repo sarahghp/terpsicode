@@ -64,6 +64,17 @@ function createMove ({ move, amount, phrase }) {
   return moveGen;
 }
 
+function createAbba ({ moves, expression }) {    
+  const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
+  return [ ...moves, ...reversedMoves].map((move, idx) => {
+    return {
+      /* For abba all four must be skipped */
+      adjustment: (idx === 0 && expression )? expressionAdjustments(5)[expression] : (() => 1),
+      fn: createMove(move)(),
+    }
+  });
+}
+
 function* createCoinFlip({ moves }) {
   const moveOne = createMove(moves[0])();
   const moveTwo = createMove(moves[1])();
@@ -81,6 +92,18 @@ function* createCoinFlip({ moves }) {
     args = yield called;
     currentFn = called.roundComplete ? getNewFunction() : currentFn;
   }
+};
+
+const createCoinFlipAction = (opts) => {
+  return [{
+    fn: createCoinFlip(opts),
+    adjustment: expressionAdjustments(2)[opts.expression] || (() => 1),
+  }];
+}
+
+const specialFunctions = {
+  'coin_flip': createCoinFlipAction,
+  'abba': createAbba,
 }
 
 function updateTiming({ time }) {
@@ -89,29 +112,11 @@ function updateTiming({ time }) {
   intervalId = setInterval(mainLoop, interval); 
 }
 
-const preprocess = {
-  abba: (moves, expression) => {    
-    const reversedMoves = moves.map((move) => ({ ...move, phrase: phrasingTypes.RETROGRADE })).reverse();
-    [ ...moves, ...reversedMoves].forEach((move, idx) => {
-      const moveWithAdjustment = {
-        /* For abba all four must be skipped */
-        adjustment: (idx === 0 && expression )? expressionAdjustments(5)[expression] : (() => 1),
-        fn: createMove(move)(),
-      }
-      imageDisplayFns.push(moveWithAdjustment);
-    });
-  }
-}
-
 function applyPhrasing({ phrase, moves, ...opts }) {
   if (globalPhrasing) {
     currentDisplayFns = imageDisplayFns;
   }
   
-  if (preprocess[phrase]) {
-    preprocess[phrase](moves, opts.expression)
-  }
-    
   globalPhrasing = {
     state: phrase,
     func: globalPhrases[phrase](),
@@ -151,13 +156,10 @@ function mainLoop () {
 
 function chomp ({ type, ...opts }) {
   switch (type) {
-    case commandTypes.COIN_FLIP:
-      const coinFlip = {
-        fn: createCoinFlip(opts),
-        adjustment: expressionAdjustments(2)[opts.expression] || (() => 1),
-      }
-      imageDisplayFns.push(coinFlip);
-      return;
+    // case commandTypes.COIN_FLIP:
+    //   const coinFlip = 
+    //   imageDisplayFns.push(coinFlip);
+    //   return;
     case commandTypes.MOVE:
        const moveFn = createMove(opts);
        const move = {
@@ -170,6 +172,11 @@ function chomp ({ type, ...opts }) {
       return applyPhrasing(opts);
     case commandTypes.RESET:
       currentDisplayFns = imageDisplayFns;
+      return;
+    case commandTypes.SPECIAL:
+      const actions = specialFunctions[opts.name](opts);
+      console.log(actions);
+      imageDisplayFns.push(...actions);
       return;
     case commandTypes.TIMING:
       return updateTiming(opts);

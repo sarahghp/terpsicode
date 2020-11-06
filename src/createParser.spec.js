@@ -91,8 +91,8 @@ describe('parser expressions', () => {
     
     it('it works with phrase type expressions with arguments', () => {
       expect(parser.parse('abba 1 walk 1 lunge')).toMatchObject({
-        phrase: 'abba', 
-        type: commandTypes.PHRASE,
+        name: 'abba', 
+        type: commandTypes.SPECIAL,
         moves: [{
           amount: 1, 
           move: 'walk',
@@ -130,8 +130,8 @@ describe('parser expressions', () => {
         moves:
          [ { amount: 3, move: 'walk', type: commandTypes.MOVE },
            { amount: 2, move: 'lunge', type: commandTypes.MOVE } ],
-        phrase: 'coin_flip',
-        type: commandTypes.COIN_FLIP 
+        name: 'coin_flip',
+        type: commandTypes.SPECIAL 
       });
     });
     
@@ -141,8 +141,8 @@ describe('parser expressions', () => {
         moves:
          [ { amount: 3, move: 'walk', type: commandTypes.MOVE },
            { amount: 2, move: 'lunge', type: commandTypes.MOVE } ],
-        phrase: 'coin_flip',
-        type: commandTypes.COIN_FLIP 
+        name: 'coin_flip',
+        type: commandTypes.SPECIAL 
       });
     });
   });

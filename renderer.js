@@ -23,8 +23,9 @@ const parseInput = (command) => {
   try {
     console.log(command);
     chomp(parser.parse(command));
-  } catch {
+  } catch (err) {
     console.error(`The parser did not understand the command:`, command)
+    console.error(err);
   }
 };
 

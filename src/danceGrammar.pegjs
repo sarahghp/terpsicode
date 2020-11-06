@@ -36,10 +36,10 @@ list_phrase
  = abba / coin_flip
 
 abba 
- = phrase:('abba') { return { phrase, type: commandTypes.PHRASE } }
+ = name:('abba') { return { name, type: commandTypes.SPECIAL } }
  
 coin_flip 
-  = phrase:('coin_flip') { return { phrase, type: commandTypes.COIN_FLIP } }
+  = name:('coin_flip') { return { name, type: commandTypes.SPECIAL } }
    
 hold 
   = 'hold' space { return { time: 1 }}
